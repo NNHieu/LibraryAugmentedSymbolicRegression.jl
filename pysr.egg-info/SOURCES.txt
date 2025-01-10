@@ -4,7 +4,6 @@
 .pre-commit-config.yaml
 LICENSE
 README.md
-api.key
 collate_equations.py
 dataset_generation.jl
 main.py
@@ -158,6 +157,11 @@ SymbolicRegression.jl/test/test_units.jl
 SymbolicRegression.jl/test/test_utils.jl
 SymbolicRegression.jl/test/user_defined_operator.jl
 SymbolicRegression.jl/test/utils.jl
+bigbench/csvs.zip
+bigbench/evaluate_equations.ipynb
+bigbench/generate_datasets.ipynb
+data/FeynmanEquations.csv
+data/feynman_hints.json
 experiments/config.py
 experiments/dataset.py
 experiments/hints.py

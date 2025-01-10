@@ -26,7 +26,7 @@ function eval_loss(tree, dataset::Dataset{T,L}, options)::L where {T,L}
 end
 """
 
-def eval_equation(idx, eq, X, Y, var_order, args, llm_options, hints, log_files, log_file_path, name):
+def eval_equation(idx, equation_name, eq, X, Y, var_order, args, llm_options, hint, log_files, log_file_path, name):
     if not os.path.exists(f"{log_file_path}/{idx}/"):
         os.makedirs(f"{log_file_path}/{idx}/", exist_ok=True)
 
@@ -39,7 +39,7 @@ def eval_equation(idx, eq, X, Y, var_order, args, llm_options, hints, log_files,
     set_llm_options = llm_options
     set_llm_options['llm_recorder_dir'] = f"{log_file_path}/{idx}/"
     set_llm_options["llm_context"] = (
-        hints[idx - 1] if hints is not None else ""
+        hint if hint is not None else ""
     )
     if args.ablation_mode == "no-variables":
         default_var_names = [
@@ -80,7 +80,7 @@ def eval_equation(idx, eq, X, Y, var_order, args, llm_options, hints, log_files,
             early_stop_condition=f"f(loss, complexity) = (loss < {format(float(args.early_stopping_condition), 'f')})"
             if args.early_stopping_condition
             else None,
-            verbosity=0,
+            verbosity=1,
             temp_equation_file=True,
             tempdir="pysr_runs",
             delete_tempfiles=True,
@@ -144,8 +144,11 @@ def eval_equation(idx, eq, X, Y, var_order, args, llm_options, hints, log_files,
                 "pow": (-1, 20),
             },
         )
-
-    model.fit(X, Y)
+    
+    run_log_file=str(os.path.abspath(os.path.join(log_file_path, str(idx), f"run_logs_{equation_name}.csv")))
+    print(f"Logging to {run_log_file}")
+    model.fit(X, Y, 
+              run_log_file=run_log_file)
     chosen_idx = idx_model_selection(
         model.equations_, model.model_selection
     )
@@ -180,28 +183,33 @@ def eval_dataset(
     log_file_path,
     log_files,
 ):
-    summary_path = os.path.join(log_file_path, "summary.txt")
-    with open(summary_path, "w") as summary_path_fp:
-        with redirect_stdout(summary_path_fp):
-            print("-" * 20)
-            print("Starting Evaluation\n\n")
-            name = f"Feynman Equations - {args.num_iterations} iterations - Prompt Evol = {llm_options['prompt_evol']} - Prompt concepts = {llm_options['prompt_concepts']}, LLM Mutate = {llm_options['weights']['llm_mutate']}, LLM Crossover = {llm_options['weights']['llm_crossover']}, LLM Gen Random = {llm_options['weights']['llm_gen_random']}, Num Pareto Context = {llm_options['num_pareto_context']}"
+    # summary_path = os.path.join(log_file_path, "summary.txt")
+    # with open(summary_path, "w") as summary_path_fp:
+        # with redirect_stdout(summary_path_fp):
+    # print("-" * 20)
+    # print("Starting Evaluation\n\n")
+    name = f"Feynman Equations - {args.num_iterations} iterations - Prompt Evol = {llm_options['prompt_evol']} - Prompt concepts = {llm_options['prompt_concepts']}, LLM Mutate = {llm_options['weights']['llm_mutate']}, LLM Crossover = {llm_options['weights']['llm_crossover']}, LLM Gen Random = {llm_options['weights']['llm_gen_random']}, Num Pareto Context = {llm_options['num_pareto_context']}"
 
-            for idx, (eq, (X, Y, var_order)) in dataset:
-                if idx < start_idx or idx >= end_idx:
-                    continue
-                eval_equation(
-                    idx=idx,
-                    eq=eq,
-                    X=X,
-                    Y=Y,
-                    var_order=var_order,
-                    args=args,
-                    llm_options=copy.deepcopy(llm_options),
-                    hints=hints,
-                    log_files=log_files,
-                    log_file_path=log_file_path,
-                    name=name
-                )
-                summary_path_fp.flush()
+    for idx, sample in dataset:
+        # if idx < start_idx or idx >= end_idx:
+        #     continue
+        var_order = sample['var_order']
+        eq = sample['expression']
+        X,Y = sample['observations']
+        hint = sample['hint']
+        eval_equation(
+            idx=idx,
+            equation_name=idx,
+            eq=eq,
+            X=X,
+            Y=Y,
+            var_order=var_order,
+            args=args,
+            llm_options=copy.deepcopy(llm_options),
+            hint=hint,
+            log_files=log_files,
+            log_file_path=log_file_path,
+            name=name
+        )
+        # summary_path_fp.flush()
 

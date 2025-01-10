@@ -292,6 +292,9 @@ using .SearchUtilsModule:
     update_hall_of_fame!
 using .ExpressionBuilderModule: embed_metadata, strip_metadata
 
+using ..HallOfFameModule: HallOfFame, format_hall_of_fame
+using DynamicExpressions: AbstractExpression, string_tree
+
 @stable default_mode = "disable" begin
     include("deprecates.jl")
     include("Configure.jl")
@@ -414,6 +417,7 @@ function equation_search(
     y_units=nothing,
     extra::NamedTuple=NamedTuple(),
     v_dim_out::Val{DIM_OUT}=Val(nothing),
+    run_log_file::Union{AbstractString,Nothing}=nothing,
     # Deprecated:
     multithreaded=nothing,
     varMap=nothing,
@@ -459,6 +463,7 @@ function equation_search(
         verbosity=verbosity,
         progress=progress,
         v_dim_out=Val(DIM_OUT),
+        run_log_file=run_log_file,
     )
 end
 
@@ -496,6 +501,7 @@ function equation_search(
     verbosity::Union{Int,Nothing}=nothing,
     progress::Union{Bool,Nothing}=nothing,
     v_dim_out::Val{DIM_OUT}=Val(nothing),
+    run_log_file::Union{AbstractString,Nothing}=nothing,
 ) where {DIM_OUT,T<:DATA_TYPE,L<:LOSS_TYPE,D<:Dataset{T,L}}
     concurrency = if parallelism in (:multithreading, "multithreading")
         :multithreading
@@ -621,11 +627,13 @@ function equation_search(
         ),
         options,
         saved_state,
+        run_log_file,
     )
 end
 
 @noinline function _equation_search(
-    datasets::Vector{D}, ropt::RuntimeOptions, options::Options, saved_state
+    datasets::Vector{D}, ropt::RuntimeOptions, options::Options, saved_state, 
+    run_log_file::Union{AbstractString,Nothing}=nothing,
 ) where {D<:Dataset}
     # PROMPT EVOLUTION
     idea_database_all = [Vector{String}() for j in 1:length(datasets)]
@@ -634,7 +642,7 @@ end
     state = _create_workers(datasets, ropt, options)
     _initialize_search!(state, datasets, ropt, options, saved_state, idea_database_all)
     _warmup_search!(state, datasets, ropt, options, idea_database_all)
-    _main_search_loop!(state, datasets, ropt, options, idea_database_all)
+    _main_search_loop!(state, datasets, ropt, options, idea_database_all, run_log_file)
     _tear_down!(state, ropt, options)
     return _format_output(state, datasets, ropt, options)
 end
@@ -874,11 +882,13 @@ function _warmup_search!(
     return nothing
 end
 function _main_search_loop!(
-    state::SearchState{T,L,N}, datasets, ropt::RuntimeOptions, options::Options, idea_database_all
+    state::SearchState{T,L,N}, datasets, ropt::RuntimeOptions, options::Options, idea_database_all,
+    run_log_file
 ) where {T,L,N}
     ropt.verbosity > 0 && @info "Started!"
     nout = length(datasets)
     start_time = time()
+    progress_step = 0
     if ropt.progress
         #TODO: need to iterate this on the max cycles remaining!
         sum_cycle_remaining = sum(state.cycles_remaining)
@@ -1052,6 +1062,7 @@ function _main_search_loop!(
                 options, ropt.total_cycles, cycles_remaining=state.cycles_remaining[j]
             )
             move_window!(state.all_running_search_statistics[j])
+            progress_step += 1
             if ropt.progress
                 head_node_occupation = estimate_work_fraction(resource_monitor)
                 update_progress_bar!(
@@ -1064,7 +1075,52 @@ function _main_search_loop!(
                     ropt.parallelism,
                 )
             end
+            # if ropt.logger !== nothing
+            #     logging_callback!(ropt.logger; state, datasets, ropt, options)
+            # end
+            # fpath = "/home/kappa/workspace/EquationDiscovery/LibraryAugmentedSymbolicRegression.jl/tmp/log.jmd"
+            
+            if run_log_file != nothing
+                open(run_log_file, "a") do file
+                    for (j, (hall_of_fame, dataset)) in enumerate(zip(state.halls_of_fame, datasets))
+                        formatted_hof = format_hall_of_fame(hall_of_fame, options)
+                        for (tree, score, loss, complexity) in
+                            zip(formatted_hof.trees, formatted_hof.scores, formatted_hof.losses, formatted_hof.complexities)
+                            eqn_string = string_tree(
+                                tree,
+                                options;
+                                display_variable_names=dataset.display_variable_names,
+                                X_sym_units=dataset.X_sym_units,
+                                y_sym_units=dataset.y_sym_units,
+                                raw=false,
+                            )
+                            log_string = @sprintf("%d, %d, %e, %e, %s, %f\n", progress_step, complexity, loss, score, eqn_string, time() - start_time)
+                            write(file, log_string)
+                        end
+                        # equation_string = string_dominating_pareto_curve(
+                        #     hall_of_fame, dataset, options; width=200
+                        # )
+                    end
+                end
+            end
         end
+        
+        
+        # formatted_hof = format_hall_of_fame(state.halls_of_fame, options)
+        # for (tree, score, loss, complexity) in
+        #     zip(formatted.trees, formatted.scores, formatted.losses, formatted.complexities)
+        #     eqn_string = string_tree(
+        #         tree,
+        #         options;
+        #         display_variable_names=dataset.display_variable_names,
+        #         X_sym_units=dataset.X_sym_units,
+        #         y_sym_units=dataset.y_sym_units,
+        #         raw=false,
+        #     )
+
+        # end
+        # println(state.halls_of_fame)
+
         yield()
 
         ################################################################

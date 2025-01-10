@@ -521,6 +521,7 @@ $(OPTION_DESCRIPTIONS)
     fast_cycle::Bool=false,
     npopulations::Union{Nothing,Integer}=nothing,
     npop::Union{Nothing,Integer}=nothing,
+    # run_log_file_path::Union{Nothing,AbstractString}=nothing,
     kws...,
 )
     for k in keys(kws)
@@ -636,6 +637,16 @@ $(OPTION_DESCRIPTIONS)
             output_file = joinpath(tmpdir, output_file)
         end
     end
+
+    # if run_log_file_path === nothing
+    #     # "%Y-%m-%d_%H%M%S.%f"
+    #     date_time_str = Dates.format(Dates.now(), "yyyy-mm-dd_HHMMSS.sss")
+    #     run_log_file_path = "run_log_" * date_time_str * ".csv"
+    #     if is_testing
+    #         tmpdir = mktempdir()
+    #         run_log_file_path = joinpath(tmpdir, run_log_file_path)
+    #     end
+    # end
 
     @assert maxsize > 3
     @assert warmup_maxsize_by >= 0.0f0

@@ -1635,6 +1635,7 @@ class PySRRegressor(MultiOutputMixin, RegressorMixin, BaseEstimator):
         self,
         X: ndarray,
         y: ndarray,
+        run_log_file,
         runtime_params: _DynamicallySetParams,
         weights: Optional[ndarray],
         seed: int,
@@ -1824,6 +1825,7 @@ class PySRRegressor(MultiOutputMixin, RegressorMixin, BaseEstimator):
             loss_function=custom_full_objective,
             maxsize=int(self.maxsize),
             output_file=_escape_filename(self.equation_file_),
+            # run_log_file=_escape_filename(self.run_log_file_),
             npopulations=int(self.populations),
             batching=self.batching,
             batch_size=int(min([batch_size, len(X)]) if self.batching else len(X)),
@@ -1942,6 +1944,7 @@ class PySRRegressor(MultiOutputMixin, RegressorMixin, BaseEstimator):
             heap_size_hint_in_bytes=self.heap_size_hint_in_bytes,
             progress=progress and self.verbosity > 0 and len(y.shape) == 1,
             verbosity=int(self.verbosity),
+            run_log_file=run_log_file,
         )
         PythonCall.GC.enable()
 
@@ -1961,6 +1964,7 @@ class PySRRegressor(MultiOutputMixin, RegressorMixin, BaseEstimator):
         self,
         X,
         y,
+        run_log_file,
         Xresampled=None,
         weights=None,
         variable_names: Optional[ArrayLike[str]] = None,
@@ -2032,6 +2036,7 @@ class PySRRegressor(MultiOutputMixin, RegressorMixin, BaseEstimator):
             self.y_units_ = None
 
         self._setup_equation_file()
+        self.run_log_file_ = run_log_file
 
         runtime_params = self._validate_and_modify_params()
 
@@ -2114,7 +2119,7 @@ class PySRRegressor(MultiOutputMixin, RegressorMixin, BaseEstimator):
             self._checkpoint()
 
         # Perform the search:
-        self._run(X, y, runtime_params, weights=weights, seed=seed)
+        self._run(X, y, run_log_file, runtime_params, weights=weights, seed=seed)
 
         # Then, after fit, we save again, so the pickle file contains
         # the equations:

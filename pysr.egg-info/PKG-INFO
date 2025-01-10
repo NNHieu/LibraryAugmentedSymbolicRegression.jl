@@ -219,15 +219,15 @@ Requires-Dist: juliacall==0.9.20
 Requires-Dist: click<9.0.0,>=7.0.0
 Requires-Dist: setuptools>=50.0.0
 
-# LaSR: Language aided Symbolic Regression
+# LaSR: Library augmented Symbolic Regression
 
 <center style="font-weight: bold;">
     <a href="https://trishullab.github.io/lasr-web/">Website</a> | 
-    <a href="https://atharvas.net/static/lasr.pdf/">Paper</a> | 
+    <a href="https://arxiv.org/abs/2409.09359/">Paper</a> | 
     <a href="https://trishullab.github.io/lasr-web/static/lasr-slides.pdf"> Short Slide Deck</a>
 </center>
 
-**Purpose**: This branch contains code to run LaSR on the synthetic dataset and the Feynman Equations dataset. We hope this is useful for future work which wishes to compare against LaSR.
+**Purpose**: This branch contains code to run LaSR on the synthetic dataset, the Feynman Equations dataset, and the bigbench dataset. We hope this is useful for future work which wishes to compare against LaSR.
 
 ## Installation
 
@@ -266,8 +266,10 @@ token-abc123
 # For more commands, read `run.sh`
 
 # To run bigbench experiments
-(lasr) $ unzip bigbench.zip
-(lasr) $ julia search.jl
+(lasr) $ unzip bigbench/csvs.zip # Use the pre-generated datasets.
+(lasr) $ open bigbench/generate_datasets.ipynb # Follow instructions to generate bigbench datasets. Might require $ pip install bigbench
+(lasr) $ julia search.jl # Edit the file to change the dataset path and other parameters
+(lasr) $ open bigbench/evaluate_equations.ipynb # Follow instructions to evaluate the equations found by LaSR
 
 
 # VLLM Setup: https://docs.vllm.ai/en/latest/

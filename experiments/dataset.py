@@ -9,6 +9,7 @@ from experiments.srsd import (
     hints_medium,
 )
 from experiments.utils import load_json, sample_dataset
+from experiments.feynman_dm import FeynmanDataModule
 
 
 def feynman_equations(dataset_path, skip_equations: set = None):
@@ -49,12 +50,31 @@ def feynman_dataset(
     use_hints=False,
     hints_path=None,
 ):
-    equations = feynman_equations(
-        dataset_path, skip_equations=set(range(1, 101)) - equations_to_keep
-    )
+    # equations = feynman_equations(
+    #     dataset_path, skip_equations=set(range(1, 101)) - equations_to_keep
+    # )
     all_hints = load_json(hints_path) if use_hints else None
-    add_extra_vars = False
-    dataset = sample_dataset(equations, num_samples, noise, add_extra_vars)
+    # add_extra_vars = False
+    # dataset = sample_dataset(equations, num_samples, noise, add_extra_vars)
+
+    dm = FeynmanDataModule()
+    dm.setup()
+
+    dataset = []
+    for eq_idx, p in enumerate(dm.problems):
+        assert len(p.samples['train']) >= num_samples
+        X = p.samples['train'][:num_samples, 1:]
+        y = p.samples['train'][:num_samples, 0]
+        var_order = {"x" + str(i): s for i, s in enumerate(p.gt_equation.symbols[1:])}
+        sample = {
+            "name": p.equation_idx,
+            "expression": p.gt_equation.expression,
+            "observations": (X, y),
+            "var_order": var_order,
+            "hint": all_hints[eq_idx] if all_hints is not None else None,
+        }
+        dataset.append(sample)
+
     return dataset, all_hints
 
 
