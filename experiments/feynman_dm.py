@@ -87,6 +87,8 @@ class FeynmanDataModule:
                                  samples=np.load(sample_dir / (e['name'] + ".npz"))
         ) for e in equations]
     
+        self.name2id = {p.equation_idx: i for i,p in enumerate(self.problems)}
+
     @property
     def name(self):
         return "feynman_100000"
@@ -114,6 +116,8 @@ class TransformedFeynmanDataModule:
                                  ),
                                  samples=np.load(sample_dir / (e['name'] + ".npz"))
         ) for e in equations]
+
+        self.name2id = {p.equation_idx: i for i,p in enumerate(self.problems)}
 
     @property
     def name(self):
