@@ -164,12 +164,14 @@ data/FeynmanEquations.csv
 data/feynman_hints.json
 experiments/config.py
 experiments/dataset.py
+experiments/feynman_dm.py
 experiments/hints.py
 experiments/main.py
 experiments/model.py
 experiments/run.sh
 experiments/srsd.py
 experiments/utils.py
+lasr/Project.toml
 prompts/crossover_system.txt
 prompts/crossover_user.txt
 prompts/extract_idea_system.txt

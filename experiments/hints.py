@@ -1,4 +1,11 @@
 import json
+from experiments.feynman_dm import FeynmanDataModule, TransformedFeynmanDataModule
+
+dm = FeynmanDataModule()
+dm.setup()
+
+names = [p.equation_idx for p in dm.problems]
+
 prehint = "Involves physics concepts from the Feynman lecture series in "
 hints = [
     "Probability",
@@ -107,6 +114,7 @@ for i in range(len(hints)):
     hints[i] = prehint + hints[i]
 
 
+hints = dict(zip(names, hints))
 # hints_dict = defaultdict(list)
 # for i in range(len(hints)):
 #     hints_dict[i // 3].append(hints[i])

@@ -65,7 +65,7 @@ def eval_equation(idx, equation_name, eq, X, Y, var_order, args, llm_options, hi
         model = PySRRegressor(
             niterations=args.num_iterations,
             ncyclesperiteration=550,
-            populations=15,
+            populations=5,
             population_size=33,
             maxsize=30,
             binary_operators=["+", "*", "-", "/", "^"],
@@ -75,6 +75,12 @@ def eval_equation(idx, equation_name, eq, X, Y, var_order, args, llm_options, hi
                 "sqrt",
                 "sin",
                 "cos",
+                # "asin",
+                # "acos",
+                "tan",
+                "cosh",
+                # "atan",
+                # "acosh",
             ],
             full_objective=custom_loss,
             early_stop_condition=f"f(loss, complexity) = (loss < {format(float(args.early_stopping_condition), 'f')})"
@@ -108,7 +114,7 @@ def eval_equation(idx, equation_name, eq, X, Y, var_order, args, llm_options, hi
             niterations=args.num_iterations,
             timeout_in_seconds=360,
             ncyclesperiteration=550,
-            populations=15,
+            populations=10,
             population_size=33,
             maxsize=30,
             binary_operators=["+", "*", "-", "/", "^"],
@@ -190,7 +196,8 @@ def eval_dataset(
     # print("Starting Evaluation\n\n")
     name = f"Feynman Equations - {args.num_iterations} iterations - Prompt Evol = {llm_options['prompt_evol']} - Prompt concepts = {llm_options['prompt_concepts']}, LLM Mutate = {llm_options['weights']['llm_mutate']}, LLM Crossover = {llm_options['weights']['llm_crossover']}, LLM Gen Random = {llm_options['weights']['llm_gen_random']}, Num Pareto Context = {llm_options['num_pareto_context']}"
 
-    for idx, sample in dataset:
+    for sample in dataset:
+        idx = sample['name']
         # if idx < start_idx or idx >= end_idx:
         #     continue
         var_order = sample['var_order']

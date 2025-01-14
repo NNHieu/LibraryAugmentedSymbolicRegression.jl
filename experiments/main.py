@@ -1,7 +1,7 @@
 from time import sleep
 import json
 from .config import parse_args, setup_logging, setup_api_key
-from .dataset import feynman_dataset, synthetic_dataset, srsd_dataset
+from .dataset import feynman_dataset, synthetic_dataset, srsd_dataset, inv_feynman_dataset
 from .model import eval_dataset
 
 
@@ -24,7 +24,7 @@ def main():
 
     match args.dataset:
         case "Feynman":
-            # equations_to_keep = set(range(1, 101))  # keep all 100
+            equations_to_keep = set(range(1, 101))  # keep all 100
             # if int(args.exp_idx) % 10 == 0:
             #     equations_to_keep = {19, 50, 68, 86, 87, 91, 2, 9, 17, 18, 24, 30, 56, 64, 65, 67, 71, 72, 3, 5, 6, 29, 33, 44, 80, 89, 90, 99}
 
@@ -32,11 +32,32 @@ def main():
             # if args.resume_from is not None:
             #     equations_to_keep -= set(processed_equations)
 
-            # end_idx = args.end_idx if args.end_idx else 100
+            end_idx = args.end_idx if args.end_idx else 100
             # equations_to_keep = set(filter(lambda x: args.start_idx <= x < end_idx, equations_to_keep))
             print("Running {n} equations".format(n=len(equations_to_keep)))
             sleep(3)
             dataset, all_hints = feynman_dataset(
+                dataset_path=args.dataset_path,
+                equations_to_keep=equations_to_keep,
+                num_samples=args.num_samples,
+                noise=args.noise,
+                use_hints=args.use_hints,
+                hints_path=args.hints_path,
+            )
+        case "InvFeynman":
+            equations_to_keep = set(range(1, 101))  # keep all 100
+            # if int(args.exp_idx) % 10 == 0:
+            #     equations_to_keep = {19, 50, 68, 86, 87, 91, 2, 9, 17, 18, 24, 30, 56, 64, 65, 67, 71, 72, 3, 5, 6, 29, 33, 44, 80, 89, 90, 99}
+
+            # equations_to_keep -= {26, 31, 81}  # remove 26, 31, 81
+            # if args.resume_from is not None:
+            #     equations_to_keep -= set(processed_equations)
+
+            end_idx = args.end_idx if args.end_idx else 100
+            # equations_to_keep = set(filter(lambda x: args.start_idx <= x < end_idx, equations_to_keep))
+            print("Running {n} equations".format(n=len(equations_to_keep)))
+            sleep(3)
+            dataset, all_hints = inv_feynman_dataset(
                 dataset_path=args.dataset_path,
                 equations_to_keep=equations_to_keep,
                 num_samples=args.num_samples,
