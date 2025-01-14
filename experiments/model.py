@@ -65,7 +65,7 @@ def eval_equation(idx, equation_name, eq, X, Y, var_order, args, llm_options, hi
         model = PySRRegressor(
             niterations=args.num_iterations,
             ncyclesperiteration=550,
-            populations=5,
+            populations=args.num_populations,
             population_size=33,
             maxsize=30,
             binary_operators=["+", "*", "-", "/", "^"],
@@ -114,7 +114,7 @@ def eval_equation(idx, equation_name, eq, X, Y, var_order, args, llm_options, hi
             niterations=args.num_iterations,
             timeout_in_seconds=360,
             ncyclesperiteration=550,
-            populations=10,
+            populations=args.num_populations,
             population_size=33,
             maxsize=30,
             binary_operators=["+", "*", "-", "/", "^"],
@@ -185,7 +185,7 @@ def eval_dataset(
     llm_options,
     start_idx,
     end_idx,
-    hints,
+    # hints,
     log_file_path,
     log_files,
 ):
@@ -196,10 +196,10 @@ def eval_dataset(
     # print("Starting Evaluation\n\n")
     name = f"Feynman Equations - {args.num_iterations} iterations - Prompt Evol = {llm_options['prompt_evol']} - Prompt concepts = {llm_options['prompt_concepts']}, LLM Mutate = {llm_options['weights']['llm_mutate']}, LLM Crossover = {llm_options['weights']['llm_crossover']}, LLM Gen Random = {llm_options['weights']['llm_gen_random']}, Num Pareto Context = {llm_options['num_pareto_context']}"
 
-    for sample in dataset:
+    for i, sample in enumerate(dataset):
         idx = sample['name']
-        # if idx < start_idx or idx >= end_idx:
-        #     continue
+        if i < start_idx or i >= end_idx:
+            continue
         var_order = sample['var_order']
         eq = sample['expression']
         X,Y = sample['observations']

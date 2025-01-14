@@ -3,16 +3,16 @@ import numpy as np
 import pandas as pd
 
 # useful constants
-pi = np.pi
-cos = np.cos
-sin = np.sin
-sqrt = np.sqrt
-exp = np.exp
-arcsin = np.arcsin
-arccos = np.arccos
-log = np.log
-ln = np.log
-tanh = np.tanh
+# pi = np.pi
+# cos = np.cos
+# sin = np.sin
+# sqrt = np.sqrt
+# exp = np.exp
+# arcsin = np.arcsin
+# arccos = np.arccos
+# log = np.log
+# ln = np.log
+# tanh = np.tanh
 
 
 def load_json(pth):
@@ -52,6 +52,45 @@ def sample(method, b, num_samples):
         return np.random.lognormal(mean=b[0], sigma=b[1], size=num_samples)
     else:
         print("Not valid method")
+
+# import sympy
+# from sympy import *
+
+# useful constants
+pi = np.pi
+cos = np.cos
+sin = np.sin
+sqrt = np.sqrt
+exp = np.exp
+arcsin = np.arcsin
+arccos = np.arccos
+log = np.log
+ln = np.log
+tanh = np.tanh
+asin = np.arcsin
+acos = np.arccos
+cosh = np.cosh
+atan = np.arctan
+acosh = np.arccosh
+
+def evaluate_expression(expression, symbols, input_values):
+    '''
+    Args:
+        expression (str): equation in str format
+        symbols (list): names of input variables
+        input_values (ndarray): a numpy array whose shape is (num data point x num input variables)
+    '''
+    expression = expression.replace("^", "**")
+    exp_as_func = eval(f"lambda {','.join(symbols[1:])}: {expression}")
+
+    X_temp = input_values
+    Y = []
+
+    for i in range(len(X_temp)):
+        Y.append(exp_as_func(*list(X_temp[i])))
+    Y = np.array(Y)
+
+    return Y
 
 def sample_equation(equation, bounds, num_samples, noise, add_extra_vars):
     out = []

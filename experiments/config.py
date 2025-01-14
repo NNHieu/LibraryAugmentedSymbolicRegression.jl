@@ -17,10 +17,14 @@ def parse_args():
     parser.add_argument("--num_workers", type=int, required=False, default=0, help="Number of equations to evaluate in parallel (Defualts to 0; sequential evaluation)")
     parser.add_argument("--idea_threshold", type=int, required=False, default=30, help="Threshold for the number of ideas to generate")
     parser.add_argument("--api_key", type=str, required=False, default="data/api.key", help="Location of the API key")
+    
+    parser.add_argument("--num_populations", type=int, required=False, default=5, help="Number of populations")
     parser.add_argument("--llm_mutate_weight", type=float, required=False, default=0.05, help="Weight for mutation operations in prompt evolution")
     parser.add_argument("--llm_crossover_weight", type=float, required=False, default=0.05, help="Weight for crossover operations in prompt evolution")
     parser.add_argument("--llm_gen_random_weight", type=float, required=False, default=0.05, help="Weight for generating random prompts in prompt evolution")
+    
     parser.add_argument("--llm_recorder_dir", type=str, required=False, default="lasr_runs", help="Directory to save the records of the large language model")
+    
     parser.add_argument("--exp_idx", type=int, required=True, help="Experiment index")
     parser.add_argument("--hints_path", type=str, required=False, help="Path to the hints file")
     parser.add_argument("--dataset_path", type=str, required=True, help="Path to the dataset")

@@ -75,7 +75,7 @@ def feynman_dataset(
         }
         dataset.append(sample)
 
-    return dataset, all_hints
+    return dataset
 
 def inv_feynman_dataset(
     dataset_path,
@@ -111,7 +111,7 @@ def inv_feynman_dataset(
         }
         dataset.append(sample)
 
-    return dataset, all_hints
+    return dataset
 
 
 def synthetic_equations(equations_to_keep):

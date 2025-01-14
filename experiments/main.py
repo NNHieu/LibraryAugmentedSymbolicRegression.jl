@@ -36,7 +36,7 @@ def main():
             # equations_to_keep = set(filter(lambda x: args.start_idx <= x < end_idx, equations_to_keep))
             print("Running {n} equations".format(n=len(equations_to_keep)))
             sleep(3)
-            dataset, all_hints = feynman_dataset(
+            dataset = feynman_dataset(
                 dataset_path=args.dataset_path,
                 equations_to_keep=equations_to_keep,
                 num_samples=args.num_samples,
@@ -57,7 +57,7 @@ def main():
             # equations_to_keep = set(filter(lambda x: args.start_idx <= x < end_idx, equations_to_keep))
             print("Running {n} equations".format(n=len(equations_to_keep)))
             sleep(3)
-            dataset, all_hints = inv_feynman_dataset(
+            dataset = inv_feynman_dataset(
                 dataset_path=args.dataset_path,
                 equations_to_keep=equations_to_keep,
                 num_samples=args.num_samples,
@@ -65,6 +65,7 @@ def main():
                 use_hints=args.use_hints,
                 hints_path=args.hints_path,
             )
+
         case "Synthetic":
             equations_to_keep = set(range(0, 42))  # keep all 42
             if args.resume_from is not None:
@@ -139,7 +140,7 @@ def main():
         ),
         start_idx=args.start_idx,
         end_idx=end_idx,
-        hints=all_hints,
+        # hints=all_hints,
         log_file_path=log_file_path,
         log_files=log_files,
     )
