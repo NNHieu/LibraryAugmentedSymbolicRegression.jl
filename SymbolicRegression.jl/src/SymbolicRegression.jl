@@ -640,10 +640,15 @@ end
 
     _validate_options(datasets, ropt, options)
     state = _create_workers(datasets, ropt, options)
-    _initialize_search!(state, datasets, ropt, options, saved_state, idea_database_all)
-    _warmup_search!(state, datasets, ropt, options, idea_database_all)
-    _main_search_loop!(state, datasets, ropt, options, idea_database_all, run_log_file)
-    _tear_down!(state, ropt, options)
+    try
+        _initialize_search!(state, datasets, ropt, options, saved_state, idea_database_all)
+        _warmup_search!(state, datasets, ropt, options, idea_database_all)
+        _main_search_loop!(state, datasets, ropt, options, idea_database_all, run_log_file)
+        _tear_down!(state, ropt, options)
+    catch e
+        llm_recorder(options.llm_options, sprint(showerror, e, backtrace()), "_equation_search|failed")
+        throw(e)
+    end
     return _format_output(state, datasets, ropt, options)
 end
 

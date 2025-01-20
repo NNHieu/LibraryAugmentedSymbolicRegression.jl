@@ -30,7 +30,8 @@ using JSON: parse
 function llm_recorder(options::LLMOptions, expr::String, mode::String="debug")
     if options.active
         if !isdir(options.llm_recorder_dir)
-            mkdir(options.llm_recorder_dir)
+            # mkdir(options.llm_recorder_dir)
+            mkpath(options.llm_recorder_dir)
         end
         recorder = open(joinpath(options.llm_recorder_dir, "llm_calls.txt"), "a")
         write(recorder, string("[", mode, "] ", expr, "\n[/", mode, "]\n"))
@@ -679,9 +680,9 @@ function llm_mutate_op(tree::AbstractExpressionNode{T}, options::Options, idea_d
             http_kwargs=convertDict(options.llm_options.http_kwargs),
             no_system_message=true,
             verbose=false,
-)
+        )
     catch e
-        llm_recorder(options.llm_options, "None", "mutate|failed")
+        llm_recorder(options.llm_options, sprint(showerror, e, backtrace()), "mutate|failed")
         return tree
     end
 
