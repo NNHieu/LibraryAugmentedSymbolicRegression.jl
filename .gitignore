@@ -23,6 +23,7 @@ docs/src/index.md
 LocalPreferences.toml
 *.key
 !pysr/juliapkg.json
+!hints.json
 
 lasr_runs/
 tmp/
