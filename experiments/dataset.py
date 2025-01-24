@@ -111,9 +111,9 @@ def feynman_dataset(
 
 def inv_feynman_dataset(
     dataset_path,
-    equations_to_keep,
+    # equations_to_keep,
     num_samples,
-    noise,
+    # noise,
     use_hints=False,
     hints_path=None,
 ):
