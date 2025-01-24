@@ -1,8 +1,9 @@
 from time import sleep
 import json
 from .config import parse_args, setup_logging, setup_api_key
-from .dataset import feynman_dataset, synthetic_dataset, srsd_dataset, inv_feynman_dataset
+from .dataset import feynman_dataset, synthetic_dataset, srsd_dataset, inv_feynman_dataset, get_dataset
 from .model import eval_dataset
+from .datamodules import get_datamodule
 
 
 def main():
@@ -32,9 +33,7 @@ def main():
             # if args.resume_from is not None:
             #     equations_to_keep -= set(processed_equations)
 
-            end_idx = args.end_idx if args.end_idx else 100
-            # equations_to_keep = set(filter(lambda x: args.start_idx <= x < end_idx, equations_to_keep))
-            print("Running {n} equations".format(n=len(equations_to_keep)))
+            
             sleep(3)
             dataset = feynman_dataset(
                 dataset_path=args.dataset_path,
@@ -44,6 +43,9 @@ def main():
                 use_hints=args.use_hints,
                 hints_path=args.hints_path,
             )
+            end_idx = args.end_idx if args.end_idx else len(dataset)
+            # equations_to_keep = set(filter(lambda x: args.start_idx <= x < end_idx, equations_to_keep))
+            print("Running {n} equations".format(n=len(dataset)))
         case "InvFeynman":
             equations_to_keep = set(range(1, 101))  # keep all 100
             # if int(args.exp_idx) % 10 == 0:
@@ -65,6 +67,89 @@ def main():
                 use_hints=args.use_hints,
                 hints_path=args.hints_path,
             )
+
+        case "Bio":
+            # equations_to_keep = set(range(1, 101))  # keep all 100
+            # if int(args.exp_idx) % 10 == 0:
+            #     equations_to_keep = {19, 50, 68, 86, 87, 91, 2, 9, 17, 18, 24, 30, 56, 64, 65, 67, 71, 72, 3, 5, 6, 29, 33, 44, 80, 89, 90, 99}
+
+            # equations_to_keep -= {26, 31, 81}  # remove 26, 31, 81
+            # if args.resume_from is not None:
+            #     equations_to_keep -= set(processed_equations)
+
+            end_idx = args.end_idx if args.end_idx else 100
+            # equations_to_keep = set(filter(lambda x: args.start_idx <= x < end_idx, equations_to_keep))
+            print("Running {n} equations".format(n=len(equations_to_keep)))
+            sleep(3)
+
+            dm = get_datamodule("datasets/bio-pop-growth-01142025_split")
+            dataset = get_dataset(dm, num_samples=args.num_samples,
+                noise=args.noise,
+                use_hints=args.use_hints,
+                hints_path=args.hints_path,)
+        
+        case "Chem":
+            # equations_to_keep = set(range(1, 101))  # keep all 100
+            # if int(args.exp_idx) % 10 == 0:
+            #     equations_to_keep = {19, 50, 68, 86, 87, 91, 2, 9, 17, 18, 24, 30, 56, 64, 65, 67, 71, 72, 3, 5, 6, 29, 33, 44, 80, 89, 90, 99}
+
+            # equations_to_keep -= {26, 31, 81}  # remove 26, 31, 81
+            # if args.resume_from is not None:
+            #     equations_to_keep -= set(processed_equations)
+
+            end_idx = args.end_idx if args.end_idx else 100
+            # equations_to_keep = set(filter(lambda x: args.start_idx <= x < end_idx, equations_to_keep))
+            sleep(3)
+
+            dm = get_datamodule("datasets/chem-react-kinetics_01142025_split")
+            dataset = get_dataset(dm, num_samples=args.num_samples,
+                noise=args.noise,
+                use_hints=args.use_hints,
+                hints_path=args.hints_path,)
+            print("Running {n} equations".format(n=len(dataset)))
+        
+        case "Mat":
+            # equations_to_keep = set(range(1, 101))  # keep all 100
+            # if int(args.exp_idx) % 10 == 0:
+            #     equations_to_keep = {19, 50, 68, 86, 87, 91, 2, 9, 17, 18, 24, 30, 56, 64, 65, 67, 71, 72, 3, 5, 6, 29, 33, 44, 80, 89, 90, 99}
+
+            # equations_to_keep -= {26, 31, 81}  # remove 26, 31, 81
+            # if args.resume_from is not None:
+            #     equations_to_keep -= set(processed_equations)
+
+            end_idx = args.end_idx if args.end_idx else 100
+            # end_idx = None
+            # equations_to_keep = set(filter(lambda x: args.start_idx <= x < end_idx, equations_to_keep))
+            sleep(3)
+
+            dm = get_datamodule("datasets/matsci-ss-01142025_split")
+            dataset = get_dataset(dm, num_samples=args.num_samples,
+                noise=args.noise,
+                use_hints=args.use_hints,
+                hints_path=args.hints_path,)
+            print("Running {n} equations".format(n=len(dataset)))
+        
+        case "Phy":
+            # equations_to_keep = set(range(1, 101))  # keep all 100
+            # if int(args.exp_idx) % 10 == 0:
+            #     equations_to_keep = {19, 50, 68, 86, 87, 91, 2, 9, 17, 18, 24, 30, 56, 64, 65, 67, 71, 72, 3, 5, 6, 29, 33, 44, 80, 89, 90, 99}
+
+            # equations_to_keep -= {26, 31, 81}  # remove 26, 31, 81
+            # if args.resume_from is not None:
+            #     equations_to_keep -= set(processed_equations)
+
+            end_idx = args.end_idx if args.end_idx else 100
+            # end_idx = None
+            # equations_to_keep = set(filter(lambda x: args.start_idx <= x < end_idx, equations_to_keep))
+            sleep(3)
+
+            dm = get_datamodule("datasets/phys-oscillator-01142025_split")
+            dataset = get_dataset(dm, num_samples=args.num_samples,
+                noise=args.noise,
+                use_hints=args.use_hints,
+                hints_path=args.hints_path,)
+            
+            print("Running {n} equations".format(n=len(dataset)))
 
         case "Synthetic":
             equations_to_keep = set(range(0, 42))  # keep all 42
@@ -132,6 +217,11 @@ def main():
             http_kwargs=dict(
                 retries=5,
                 readtimeout=360,
+                headers={
+                    "Content-Type": "application/json",
+                    "Authorization": f"Bearer {api_key}",
+                    "x-use-cache": "false",
+                },
             ),
             llm_recorder_dir=log_file_path,
             idea_threshold=args.idea_threshold,

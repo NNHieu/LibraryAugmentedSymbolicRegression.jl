@@ -42,6 +42,38 @@ def feynman_equations(dataset_path, skip_equations: set = None):
     return dataset
 
 
+def get_dataset(
+    dm,
+    num_samples,
+    noise,
+    use_hints=False,
+    hints_path=None,
+):
+    # equations = feynman_equations(
+    #     dataset_path, skip_equations=set(range(1, 101)) - equations_to_keep
+    # )
+    all_hints = load_json(hints_path) if use_hints else None
+    # add_extra_vars = False
+    # dataset = sample_dataset(equations, num_samples, noise, add_extra_vars)
+    dm.setup()
+
+    dataset = []
+    for eq_idx, p in enumerate(dm.problems):
+        assert len(p.train_samples) >= num_samples
+        X = p.train_samples[:num_samples, 1:]
+        y = p.train_samples[:num_samples, 0]
+        var_order = {"x" + str(i): s for i, s in enumerate(p.gt_equation.symbols[1:])}
+        sample = {
+            "name": p.equation_idx,
+            "expression": p.gt_equation.expression,
+            "observations": (X, y),
+            "var_order": var_order,
+            "hint": p.gt_equation.desc,
+        }
+        dataset.append(sample)
+
+    return dataset
+
 def feynman_dataset(
     dataset_path,
     equations_to_keep,
